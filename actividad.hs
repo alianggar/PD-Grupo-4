@@ -18,6 +18,7 @@ Indica si dos cajas delimitadoras, alineadas con los ejes, se solapan en algún 
 -- La caja empieza en el punto (x,y)
 -- y tiene largo l (eje x) y altura a (eje y)
 
+-- PREGUNTAR PROFESOR FORMATO CAJA -> CAJA = (posicion, tamano) -> ((Double,Double),  (Double,Double))
 type Caja a = (a, a, a, a)
 
 solapan :: (Ord a, Num a) => Caja a -> Caja a -> Bool
@@ -100,8 +101,6 @@ finRachas :: Fila -> [Int]
 finRachas xs = [j | j <- [0..length xs -1]
                         , esSolido (xs !! j)
                         , j == length xs -1 || not (esSolido (xs !! (j + 1)))]
-
-
 
 
 
