@@ -43,4 +43,24 @@ de una cadena.
 -}
 
 trim :: String -> String
+trim cadena = trimFinal (trimPrincipio cadena)
+    where
+    -- creamos una funcion para saber si un caracter es un espacio en blanco
+        espacio :: Char -> Bool
+        espacio cadena = cadena == ' ' || cadena == '\t' || cadena == '\n'
+    -- ahora otra funcion para eliminar los espacios al principio de la cadena
+        trimPrincipio :: String -> String
+    -- primero el caso base, cuando es vacio devuelve la cadena vacia
+        trimPrincipio "" = ""
+        trimPrincipio (x:xs)
+            | espacio x = trimPrincipio xs
+        -- si el primer caracter es un espacio en blanco, devuelve el resto de la cadena
+            | otherwise = x:xs
+        -- en caso contrario, devuelve la cadena completa
+    -- y por ultimo, otra funcion para eliminar los espacios al final de la cadena
+        trimFinal :: String -> String
+        trimFinal f = reverse (trimPrincipio (reverse f))
+    -- le da la vuelta a la cadena y llama a la funcion trimPrincipio para eliminar si encuentra
+    -- un espacio en blanco y vuelve a darle la vuelta a la cadena para dejarla en el orden correcto
+
 
