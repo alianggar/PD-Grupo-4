@@ -6,8 +6,8 @@ type Celda = Char
 type Fila = [Celda]
 type Grid = [Fila]
 
--- Ejercicio 4: Utilidad de listas y cadenas
 {-
+Ejercicio 4: Utilidad de listas y cadenas
 Función: splitOn
 Divide una cadena en trozos cada vez que aparece un carácter separador dado
 > splitOn ',' "1,2,3"
@@ -96,4 +96,82 @@ list2Vector2 [] = error "Lista vacia no posible convertir en Vector2"
 list2Vector2 [x] = error "Falta un elemento en la lista para convertir en Vector2"
 -- caso general con al menos 2 elementol, usamos el patron anonimo porque el resto de la lista no nos importa
 list2Vector2 (x:y:_) = (x,y)
+
+{-
+Ejercicio 5
+Función: parsearNivel
+Convierte la lista de líneas de texto leídas de un fichero de nivel en la estructura de datos
+que representa el nivel completo.
+> parsearNivel ["..M", "#.X", "###"]
+["..M","#.X","###"]
+-}
+
+parsearNivel :: [Fila] -> Grid
+parsearNivel filas = filas 
+
+{-
+Función: esSolido
+Indica si una celda es una plataforma sólida.
+> esSolido '#'
+True
+> esSolido '.'
+False
+-}
+
+esSolido :: Celda -> Bool
+esSolido '#' = True
+esSolido _ = False
+-- uso de pattern matching para especificar que '#' es solido y cualquier otro, no lo es
+
+{-
+Función: esMeta
+Indica si una celda es la meta del nivel.
+> esMeta 'M'
+True
+> esMeta '#'
+False
+-}
+
+esMeta :: Celda -> Bool
+esMeta 'M' = True
+esMeta _ = False
+
+{-
+Función: esVacio
+Indica si una celda está vacía (no hay nada en ella).
+> esVacio '.'
+True
+> esVacio 'M'
+False
+-}
+
+esVacio :: Celda -> Bool
+esVacio '.' = True
+esVacio _ = False
+-- lo mismo con es meta y es vacio
+
+{-
+Función: esEnemigo
+Indica si una celda marca el punto de inicio de un enemigo (cualquier carácter que no sea
+sólido, meta ni vacío).
+> esEnemigo 'X'
+True
+> esEnemigo '#'
+False
+> esEnemigo '.'
+False
+-}
+
+esEnemigo :: Celda -> Bool
+esEnemigo c = not (esSolido c || esMeta c || esVacio c)
+
+{-
+Función: posicionesMeta
+Dado el nivel completo, devuelve la lista de posiciones (fila, columna) en las que aparece la
+meta.
+> posicionesMeta ["..M", "#.X", "###"]
+[(0,2)]
+> posicionesMeta ["....", "...."]
+[]
+-}
 
