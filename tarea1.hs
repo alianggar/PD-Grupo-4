@@ -63,4 +63,18 @@ trim cadena = trimFinal (trimPrincipio cadena)
     -- le da la vuelta a la cadena y llama a la funcion trimPrincipio para eliminar si encuentra
     -- un espacio en blanco y vuelve a darle la vuelta a la cadena para dejarla en el orden correcto
 
+{-
+Función: contarSiCumple
+Cuenta cuántos elementos de una lista cumplen una condición dada.
+> contarSiCumple even [1,2,3,4,5,6]
+3
+> contarSiCumple (> 10) [1,20,3,40]
+2
+-}
+
+contarSiCumple :: (a -> Bool) -> [a] -> Int 
+contarSiCumple condicion xs = length [ x | x <- xs, condicion x]
+-- recorremos todos los elementos de la lista, le aplicamos la condicion de la guarda para quedarnos solo
+-- con las que lo cumplan y contamos los elementos que pasen el filtro de la condicion 
+
 
