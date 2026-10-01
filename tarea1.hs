@@ -77,4 +77,23 @@ contarSiCumple condicion xs = length [ x | x <- xs, condicion x]
 -- recorremos todos los elementos de la lista, le aplicamos la condicion de la guarda para quedarnos solo
 -- con las que lo cumplan y contamos los elementos que pasen el filtro de la condicion 
 
+{-
+Función: list2Vector2
+Convierte una lista de dos (o más) números en un vector/punto 2D; lanza un error si la lista
+no tiene al menos dos elementos.
+> list2Vector2 [3.0, 4.0]
+(3.0,4.0)
+> list2Vector2 [3.0]
+*** Exception: Falta un elemento en la lista para convertir en Vector2
+> list2Vector2 []
+*** Exception: Lista vacia no posible convertir en Vector2
+-}
+
+list2Vector2 :: [Double] -> Vector2D
+-- caso de lista vacia
+list2Vector2 [] = error "Lista vacia no posible convertir en Vector2"
+-- caso lista solo con un elemento
+list2Vector2 [x] = error "Falta un elemento en la lista para convertir en Vector2"
+-- caso general con al menos 2 elementol, usamos el patron anonimo porque el resto de la lista no nos importa
+list2Vector2 (x:y:_) = (x,y)
 
