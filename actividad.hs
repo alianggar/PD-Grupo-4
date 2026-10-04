@@ -10,6 +10,8 @@ consistente en las tres funciones
 
 -}
 
+import Test.QuickCheck
+
 type Vector2D = (Double,Double)
 
 sumaVectores :: Vector2D -> Vector2D -> Vector2D
@@ -181,12 +183,18 @@ casos inválidos; el tipo del resultado debe coincidir con el denido en la Subt
 -}
 
 splitOn :: Char -> String -> [String]
-splitOn c = aux ""
-  where
-    aux palabra [] = [reverse palabra]
-    aux palabra (x:xs)
-      | x == c    = reverse palabra : aux "" xs
-      | otherwise = aux (x:palabra) xs
+-- Empezamos con el caso base, si tenemos una cadena vacía, se devuelve una lista con una cadena vacía
+-- y usamos el patrón ánonimo en el primer valor porque nos da igual el valor que tenga porque siempre devuelve una lista vacía
+splitOn _ "" = [""]
+splitOn carS (x:xs)
+-- si el primer carácter es igual que el separador, significa que ha terminado la palabra que estabamos leyendoç
+-- añadimos una cadena vacia al principio del resto para indicar que empieza un fragmento nuevo
+    | x == carS = "" : r
+-- en caso contrario, que x no es el separador, con r !! 0 accedemos al primer elemento de la lista
+-- y con drop elimina el primer elemento de la lista y se queda con los restantes
+    | otherwise = (x : r !! 0) : drop 1 r
+    where
+        r = splitOn carS xs
 
 
 trim :: String -> String
@@ -196,10 +204,7 @@ trim cs = reverse (dropWhile esBlanco (reverse (dropWhile esBlanco cs)))
 
 
 contarSiCumple :: (a -> Bool) -> [a] -> Int
-contarSiCumple _ [] = 0
-contarSiCumple p (x:xs)
-    | p x   = 1 + contarSiCumple p xs
-    | otherwise = contarSiCumple p xs
+contarSiCumple p xs = length [x | x <- xs, p x]
 
 
 list2Vector2 :: [Double] -> Vector2D
@@ -213,31 +218,115 @@ list2Vector2 (x:y:_) = (x,y)
 {-
 
 
-
-
+Bonus: Propiedades con QuickCheck (hasta +1 punto extra)
+Esta subtarea es opcional y suma puntos extra sobre el total de la tarea (no resta si no se
+hace). Se pide expresar como propiedades QuickCheck algunas de las funciones ya implementadas
+en las subtareas anteriores, y comprobarlas con quickCheck. Recordad importar la librería al
+principio del chero:
+import Test.QuickCheck
+Puntuación: 0.15 puntos cada propiedad, hasta un máximo de 1 punto.
+prop_suma_conmutativa: sumaVectores a b es igual a sumaVectores b a
+prop_suma_asociativa: sumar en un orden u otro da el mismo resultado
+prop_escalar_neutro: escalar un vector por 1 no lo cambia
+prop_distancia_no_negativa: la distancia entre dos puntos nunca es negativa
+prop_distancia_simetrica: la distancia de a a b es igual que de b a a
+prop_solapan_simetrica: solapan a b es igual a solapan b a
+prop_trim_idempotente: aplicar trim dos veces da el mismo resultado que aplicarlo una
+vez
+prop_splitOn_sin_separador (propiedad condicional, usando ==>): si el carácter separador no aparece en la cadena, el resultado de splitOn es una lista con un único elemento,
+la propia cadena
+prop_contarSiCumple_acotado: el resultado de contarSiCumple nunca es mayor que la
+longitud de la lista
+Se debe entregar, para cada propiedad implementada, la denición de la función prop_... y
+una captura o transcripción de su ejecución con quickCheck (indicando "+++ OK, passed 100
+tests." o el contraejemplo, si la propiedad estuviera mal expresada y QuickCheck la refuta)
 
 
 -}
 
+prop_suma_conmutativa :: Vector2D -> Vector2D -> Bool
+prop_suma_conmutativa v1 v2 = sumaVectores v1 v2 == sumaVectores v2 v1
+
+-- *Main> quickCheck prop_suma_conmutativa
+-- +++ OK, passed 100 tests.
 
 
+prop_suma_asociativa :: (Num a, Eq a) => a -> a -> Bool
+prop_suma_asociativa a b = a + b == b + a
+
+-- *Main> quickCheck prop_suma_asociativa
+-- +++ OK, passed 100 tests.
 
 
+prop_escalar_neutro :: Vector2D -> Bool
+prop_escalar_neutro v = escalarVector 1 v == v
+
+-- *Main> quickCheck prop_escalar_neutro
+-- +++ OK, passed 100 tests.
 
 
+prop_distancia_no_negativa :: Vector2D -> Vector2D -> Bool
+prop_distancia_no_negativa v1 v2 = distancia v1 v2 >= 0
 
 
+-- *Main> quickCheck prop_distancia_no_negativa
+-- +++ OK, passed 100 tests.
 
 
+prop_distancia_simetrica :: Vector2D -> Vector2D -> Bool
+prop_distancia_simetrica v1 v2 = distancia v1 v2 == distancia v2 v1
+
+-- *Main> quickCheck prop_distancia_simetrica
+-- +++ OK, passed 100 tests.
 
 
+prop_solapan_simetrica :: (Num a, Ord a) => Caja a -> Caja a -> Bool
+prop_solapan_simetrica a b = solapan a b == solapan b a
+
+-- *Main> quickCheck prop_solapan_simetrica
+-- +++ OK, passed 100 tests.
 
 
+prop_trim_idempotente :: String -> Bool
+prop_trim_idempotente s = trim (trim s) == trim s
 
 
+-- *Main> quickCheck prop_trim_idempotente
+-- +++ OK, passed 100 tests.
+
+--sep string
+prop_splitOn_sin_separador :: Char -> String -> Property
+prop_splitOn_sin_separador c s =
+    not (c `elem` s) ==> splitOn c s == [s]
 
 
+-- *Main> quickCheck prop_splitOn_sin_separador
+-- +++ OK, passed 100 tests; 17 discarded.
+
+prop_contarSiCumple_acotado :: Fun Int Bool -> [Int] -> Bool
+prop_contarSiCumple_acotado (Fn p) xs = contarSiCumple p xs <= length xs
 
 
+{-
 
+Inicialmente dabe error: 
+
+
+<interactive>:40:1: error:
+    * No instance for (Show (() -> Bool))
+        arising from a use of `quickCheck'
+        (maybe you haven't applied a function to enough arguments?)
+    * In the expression: quickCheck prop_contarSiCumple_acotado
+      In an equation for `it':
+          it = quickCheck prop_contarSiCumple_acotado
+
+QuickCheck necesita poder mostrar los argumentos cuando una prueba falla. Como la propiedad es 
+polimórfica (a), GHCi elige () por defecto, y las funciones no tienen instancia de Show
+
+Usamos Fun de QuickCheck, que genera funciones mostrables, y fijamos el tipo
+
+*Main> quickCheck prop_contarSiCumple_acotado
++++ OK, passed 100 tests.
+
+-}
 
