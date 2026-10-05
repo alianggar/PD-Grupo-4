@@ -38,22 +38,18 @@ solapan (x1, y1, l1, a1) (x2, y2, l2, a2) =
 -- La caja empieza en el punto (x,y)
 -- y tiene largo l (eje x) y altura a (eje y)
 
--- Definición del tipo de dato para el resultado de la colisión
-data Lado = Arriba | Abajo | Izquierda | Derecha deriving (Show, Eq)
-
--- Definición del tipo sinónimo para las cajas (x, y, largo, alto). 
-
+type Lado = String
 
 -- Calcula el lado de colisión entre dos cajas (La primera es la que colisiona con la segunda)
 ladoColision :: (Ord a, Num a) => Caja a -> Caja a -> Lado
 ladoColision (x1, y1, l1, a1) (x2, y2, l2, a2) 
-    | minSolape == solapeArriba    = Arriba
-    | minSolape == solapeAbajo     = Abajo
-    | minSolape == solapeIzquierda = Izquierda
-    | otherwise                    = Derecha
+    | minSolape == solapeArriba    = "Arriba"
+    | minSolape == solapeAbajo     = "Abajo"
+    | minSolape == solapeIzquierda = "Izquierda"
+    | otherwise                    = "Derecha"
   where
     -- Cálculo correcto de los 4 solapes parciales
-    solapeArriba    = (y2 + a2) - y1 -- (Arriba de Caja 2) menos (Abajo de Caja 1)
+    solapeArriba    = (y2 + a2) - y1 -- (Arriba de Caja 2) - (Abajo de Caja 1)
     solapeAbajo     = (y1 + a1) - y2 -- (Arriba de Caja 1) - (Abajo de Caja 2)
     solapeIzquierda = (x1 + l1) - x2 -- (Derecha de Caja 1) - (Izquierda de Caja 2)
     solapeDerecha   = (x2 + l2) - x1 -- (Derecha de Caja 2) - (Izquierda de Caja 1)
