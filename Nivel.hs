@@ -1,10 +1,19 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- EJERCICIO 1
+-- TIPOS SINÓNIMO E IMPORTACIONES
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 import Test.QuickCheck
 
 type Vector2D = (Double,Double)
+type Caja a = (a, a, a, a)
+type Lado = String
+type Celda = Char
+type Fila = [Celda]
+type Grid = [Fila]
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- EJERCICIO 1
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 sumaVectores :: Vector2D -> Vector2D -> Vector2D
 sumaVectores (x1,y1) (x2,y2) = (x1+x2,y1+y2) 
@@ -24,8 +33,6 @@ distancia (x1,y1) (x2,y2) = sqrt ((x2-x1)^2 + (y2-y1)^2)
 -- La caja empieza en el punto (x,y)
 -- y tiene largo l (eje x) y altura a (eje y)
 
-type Caja a = (a, a, a, a)
-
 solapan :: (Ord a, Num a) => Caja a -> Caja a -> Bool
 solapan (x1, y1, l1, a1) (x2, y2, l2, a2) = 
     (x1 < x2 + l2) && (x2 < x1 + l1) && (y1 < y2 + a2) && (y2 < y1 + a1)
@@ -33,12 +40,6 @@ solapan (x1, y1, l1, a1) (x2, y2, l2, a2) =
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- EJERCICIO 3
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
--- Caja (x,y,l,a)
--- La caja empieza en el punto (x,y)
--- y tiene largo l (eje x) y altura a (eje y)
-
-type Lado = String
 
 -- Calcula el lado de colisión entre dos cajas (La primera es la que colisiona con la segunda)
 ladoColision :: (Ord a, Num a) => Caja a -> Caja a -> Lado
@@ -101,10 +102,6 @@ list2Vector2 (x:y:_) = (x,y)
 -- '.' = vacío
 -- cualquier otro carácter = inicio de un enemigo
 --  el propio carácter es su identificador
-
-type Celda = Char
-type Fila = [Celda]
-type Grid = [Fila]
 
 parsearNivel :: [String] -> Grid
 parsearNivel css  = css
