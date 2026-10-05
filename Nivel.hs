@@ -166,13 +166,6 @@ prop_suma_conmutativa v1 v2 = sumaVectores v1 v2 == sumaVectores v2 v1
 -- +++ OK, passed 100 tests.
 
 
-prop_suma_asociativa :: (Num a, Eq a) => a -> a -> Bool
-prop_suma_asociativa a b = a + b == b + a
-
--- *Main> quickCheck prop_suma_asociativa
--- +++ OK, passed 100 tests.
-
-
 prop_escalar_neutro :: Vector2D -> Bool
 prop_escalar_neutro v = escalarVector 1 v == v
 
