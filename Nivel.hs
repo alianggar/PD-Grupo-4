@@ -324,7 +324,7 @@ colisionan (x1,y1,w1,h1) (x2,y2,w2,h2) =
 -- || por la propia evaluacion perezosa de Haskell. Cuando se cumpla devuelve
 -- True inmediatamente, dejando de evalaur el resto de la secuencia
 hayColisionConAlguna :: (Ord a, Num a) => Caja a -> [Caja a] -> Bool
-hayColisionConAlguna y = foldr (\x ac -> colisionan x y ||  ac) False
+hayColisionConAlguna y = foldr (\x ac -> colisionan x y || ac) False
 
 -- Es lo mismo porque Haskell es perezoso
 --hayColisionConAlguna :: (Ord a, Num a) => Caja a -> [Caja a] -> Bool
@@ -345,9 +345,10 @@ con otra que suma los resultados de todas las las).
 
 -- NOS PIDEN CON FOLDL, NO CON FOLDR
 
--- Elegimos foldl, pues debemos acumular un resultado numérico de todas las fials del grid
--- sin necesifdad de cortociruito, combinando la suam de las celdas en cada fila mediante
--- un recorrido sobre la secuencia de izq a derecha
+-- Elegimos foldl, pues debemos acumular un resultado numérico de todas las filas del grid
+-- sin necesidad de cortociruito, combinando la suma de las celdas en cada fila mediante
+-- un recorrido sobre la secuencia de izq a derecha. 
+-- La ventaja de foldl es que se realizaría en menos casos la función suma
 
 contarCeldasQueCumplen :: (Celda -> Bool) -> Grid -> Int
 contarCeldasQueCumplen p = foldl (\ys x -> ys + cuentaCeldasQueCumplenAux p x) 0 
