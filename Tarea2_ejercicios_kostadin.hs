@@ -6,6 +6,8 @@ type Celda = Char
 type Fila = [Celda]
 type Grid = [Fila]
 
+
+
 esMeta :: Celda -> Bool
 esMeta c = c == 'M'
 
@@ -20,14 +22,14 @@ esEnemigo c = not (esSolido c || esMeta c || esVacio c)
 
 --Funcion posicionesMetaRec usando recursion y funciones auxiliares.
 
-posicionesMetaRec::Grid -> [(Int, Int)]
+posicionesMetaRec :: Grid -> [(Int, Int)]
 posicionesMetaRec xs = recorreFilaMeta 0 xs
 
-recorreFilaMeta::Int -> Grid -> [(Int, Int)]
+recorreFilaMeta :: Int -> Grid -> [(Int, Int)]
 recorreFilaMeta _ [] = []
 recorreFilaMeta f (x:xs) = recorreColMeta f 0 x  ++ recorreFilaMeta (f+1) xs
 
-recorreColMeta::Int->Int->Fila->[(Int, Int)]
+recorreColMeta :: Int->Int->Fila->[(Int, Int)]
 recorreColMeta _ _ [] = []
 recorreColMeta f c (x:xs) 
     |esMeta x = (f,c) : recorreColMeta f (c+1) xs
@@ -36,16 +38,46 @@ recorreColMeta f c (x:xs)
 
 --Funcion posicionesEnemigosRec usando recursion y funciones auxiliares.
 
-posicionesEnemigosRec::Grid -> [(Int, Int, Celda)]
+posicionesEnemigosRec :: Grid -> [(Int, Int, Celda)]
 posicionesEnemigosRec xs = recorreFilaEnemigos 0 xs
 
-recorreFilaEnemigos::Int -> Grid -> [(Int, Int, Celda)]
+recorreFilaEnemigos :: Int -> Grid -> [(Int, Int, Celda)]
 recorreFilaEnemigos _ [] = []
 recorreFilaEnemigos f (x:xs) = recorreColEnemigos f 0 x  ++ recorreFilaEnemigos (f+1) xs
 
-recorreColEnemigos::Int->Int->Fila->[(Int, Int, Celda)]
+recorreColEnemigos :: Int->Int->Fila->[(Int, Int, Celda)]
 recorreColEnemigos _ _ [] = []
 recorreColEnemigos f c (x:xs) 
     |esEnemigo x = (f,c,x) : recorreColEnemigos f (c+1) xs
     |otherwise = recorreColEnemigos f (c+1) xs
 
+-- Bloque 1 - Subtarea 5 Recursión con descarte condicional: preparación de líneas 
+
+esComentarioOVacia :: String -> Bool
+esComentarioOVacia "" = True
+esComentarioOVacia (x:_) = x == ';'
+
+--Funcion implementada en la tarea 1 necesaria para hacer prepararLineas
+trim :: String -> String
+trim cs = reverse (dropWhile esBlanco (reverse (dropWhile esBlanco cs)))
+  where
+    esBlanco c = c == ' ' || c == '\t' || c == '\n'
+
+
+prepararLineas :: [String]->[String]
+prepararLineas [] = []
+prepararLineas (x:xs) 
+    | esComentarioOVacia noEspacios = prepararLineas xs
+    | otherwise = noEspacios : prepararLineas xs
+    where
+        noEspacios = trim x
+
+-- Bloque 2 Subtarea 5 : funciones mapPropio y filterPropio
+
+mapPropio :: (a -> b) -> [a] -> [b]
+mapPropio _ [] = []
+mapPropio f (x:xs) = f x : mapPropio f xs
+
+filterPropio :: (a -> Bool) -> [a] -> [a]
+filterPropio _ [] = []
+filterPropio f (x:xs) = if f x then x : filterPropio f xs else filterPropio f xs
