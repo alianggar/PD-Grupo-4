@@ -175,3 +175,21 @@ meta.
 []
 -}
 
+-- TAREA 2
+
+{-
+Función: zipPropio
+Empareja los elementos de dos listas, uno a uno, deteniéndose en cuanto una de las dos se
+acaba.
+> zipPropio [1,2,3] "abc"
+[(1,'a'),(2,'b'),(3,'c')]
+> zipPropio [1,2,3,4,5] [10,20]
+[(1,10),(2,20)]
+-}
+
+
+zipPropio :: [a] -> [b] -> [(a,b)]
+zipPropio [] _ = []
+zipPropio _ [] = []
+zipPropio (x:xs) (y:ys) = (x,y) : zipPropio xs ys
+
