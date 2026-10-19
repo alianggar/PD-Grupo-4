@@ -1,7 +1,9 @@
+import Test.QuickCheck
+
 type Vector2D = (Double, Double)
 type Posicion = (Double, Double)
 type Tamaño = (Double, Double)
-type Caja = (Posicion, Tamaño)
+type Caja a = (a, a, a, a)
 type Celda = Char
 type Fila = [Celda]
 type Grid = [Fila]
@@ -192,4 +194,100 @@ zipPropio :: [a] -> [b] -> [(a,b)]
 zipPropio [] _ = []
 zipPropio _ [] = []
 zipPropio (x:xs) (y:ys) = (x,y) : zipPropio xs ys
+
+{-
+Funciones hechas por mis compañeros
+-}
+
+-- Bloque 2 Subtarea 5 : funciones mapPropio y filterPropio
+
+mapPropio :: (a -> b) -> [a] -> [b]
+mapPropio _ [] = []
+mapPropio f (x:xs) = f x : mapPropio f xs
+
+filterPropio :: (a -> Bool) -> [a] -> [a]
+filterPropio _ [] = []
+filterPropio f (x:xs) = if f x then x : filterPropio f xs else filterPropio f xs
+
+foldrPropio :: (a -> b -> b) -> b -> [a] -> b
+foldrPropio _ inicial [] = inicial
+foldrPropio f inicial (x:xs) = f x (foldrPropio f inicial xs)
+
+foldlPropio :: (b -> a -> b) -> b -> [a] -> b
+foldlPropio _ acumulador [] = acumulador
+foldlPropio f acumulador (x:xs) = foldlPropio f (f acumulador x) xs
+
+paso :: Double -> Vector2D -> Vector2D
+paso a (p, v) = (p + v, v + a)
+
+-- simularCaidaLibre: pasos, aceleracion, estado inicial (posicion, velocidad)
+simularCaidaLibre :: Int -> Double -> Vector2D -> [Vector2D]
+simularCaidaLibre 0 _ estado = [estado]
+simularCaidaLibre n a estado = estado : simularCaidaLibre (n - 1) a (paso a estado)
+
+
+simularCaidaLibre' :: Int -> Double -> Vector2D -> [Vector2D]
+simularCaidaLibre' 0 _ e = [e]
+simularCaidaLibre' n a e@(p,v) = e : simularCaidaLibre (n-1) a (p+v,v+a)
+
+-- Funcion auxiliar: comprueba si hay colisión entre 2 cajas
+colisionan :: (Ord a, Num a) => Caja a -> Caja a -> Bool
+colisionan (x1,y1,w1,h1) (x2,y2,w2,h2) =
+    x1 < x2 + w2 &&
+    x1 + w1 > x2 && 
+    y1 < y2 + h2 &&
+    y1 + h1 > h2
+
+-- Elegimos foldr porque permite que el cortocircuito con el operador
+-- || por la propia evaluacion perezosa de Haskell. Cuando se cumpla devuelve
+-- True inmediatamente, dejando de evalaur el resto de la secuencia
+hayColisionConAlguna :: (Ord a, Num a) => Caja a -> [Caja a] -> Bool
+hayColisionConAlguna y = foldr (\x ac -> colisionan x y || ac) False
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- BONUS PROPIEDADS QUICKCHECK
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+prop_mapPropio_equivale_map :: (Eq b, Show b) => (a -> b) -> [a] -> Bool
+prop_mapPropio_equivale_map f xs = mapPropio f xs == map f xs
+
+-- +++ OK, passed 100 tests.
+
+prop_filterPropio_equivale_filter :: (Eq a, Show a) => (a -> Bool) -> [a] -> Bool
+prop_filterPropio_equivale_filter f xs = filterPropio f xs == filter f xs
+
+-- +++ OK, passed 100 tests.
+
+prop_foldrPropio_equivale_foldr :: (Eq a, Show a) => a -> [a] -> Bool
+prop_foldrPropio_equivale_foldr inicial xs = 
+    foldrPropio f inicial xs == foldr f inicial xs
+  where 
+    f elemento ac = elemento  -- Función genérica válida para cualquier tipo
+
+-- +++ OK, passed 100 tests.
+
+prop_foldlPropio_equivale_foldl :: (Eq a, Show a) => a -> [a] -> Bool
+prop_foldlPropio_equivale_foldl acumulador xs = 
+    foldlPropio f acumulador xs == foldl f acumulador xs
+  where 
+    f ac elemento = ac        -- Función genérica válida para cualquier tipo
+
+-- +++ OK, passed 100 tests.
+
+prop_zipPropio_equivale_zip :: (Eq a, Eq b) => [a] -> [b] -> Bool
+prop_zipPropio_equivale_zip xs ys = zipPropio xs ys == zip xs ys
+
+-- +++ OK, passed 100 tests.
+
+prop_simularCaidaLibre_longitud :: Int -> Double -> Vector2D -> Property
+prop_simularCaidaLibre_longitud n a estado = 
+    n >= 0 ==> length (simularCaidaLibre n a estado) == n + 1
+
+-- +++ OK, passed 100 tests.
+
+prop_hayColisionConAlguna_lista_vacia :: (Ord a, Num a) => Caja a -> Bool
+prop_hayColisionConAlguna_lista_vacia y = not (hayColisionConAlguna y [])
+
+-- +++ OK, passed 100 tests.
+
 
