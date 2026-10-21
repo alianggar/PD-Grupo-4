@@ -297,7 +297,26 @@ recorreColEnemigos f c (x:xs)
 -- EJERCICIO 2: Generalización por recursión de agruparRachas
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+{-
+Función: agruparPorCaracter
+Recorre una fila y agrupa en tríos (columna de inicio, longitud, carácter) 
+las rachas de caracteres consecutivos iguales. 
+-}
 
+agruparPorCaracter :: Fila -> [(Int, Int, Char)]
+agruparPorCaracter cadena = agruparAux cadena 0
+
+agruparAux :: Fila -> Int -> [(Int, Int, Char)]
+agruparAux [] _ = []
+agruparAux (x:xs) indiceActual =
+    let (longitud, resto) = contarRacha x xs 1
+    in (indiceActual, longitud, x) : agruparAux resto (indiceActual + longitud)
+
+contarRacha :: Char -> Fila -> Int -> (Int, Fila)
+contarRacha _ [] contador = (contador, [])
+contarRacha c (x:xs) contador
+    | c == x    = contarRacha c xs (contador + 1)
+    | otherwise = (contador, (x:xs))
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -397,6 +416,21 @@ filterPropio f (x:xs) = if f x then x : filterPropio f xs else filterPropio f xs
 -- SUBTAREA 6: foldrPropio y foldlPropio
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+{- Función: foldrPropio
+Combina los elementos de una lista de derecha a izquierda usando una función binaria y un
+valor inicial. No podéis usar foldr de la librería para definirla. -}
+
+foldrPropio :: (a -> b -> b) -> b -> [a] -> b
+foldrPropio _ inicial [] = inicial
+foldrPropio f inicial (x:xs) = f x (foldrPropio f inicial xs)
+
+{- Función: foldlPropio
+Combina los elementos de una lista de izquierda a derecha, arrastrando un acumulador que
+empieza en el valor inicial. No podéis usar foldl de la librería para definirla. -}
+
+foldlPropio :: (b -> a -> b) -> b -> [a] -> b
+foldlPropio _ acumulador [] = acumulador
+foldlPropio f acumulador (x:xs) = foldlPropio f (f acumulador x) xs
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- SUBTAREA 7: Aplicación justificada de foldr/foldl
@@ -421,7 +455,7 @@ Debe implementarse con foldr.
 
 -- Elegimos foldr porque permite que el cortocircuito con el operador
 -- || por la propia evaluacion perezosa de Haskell. Cuando se cumpla devuelve
--- True inmediatamente, dejando de evalaur el resto de la secuencia
+-- True inmediatamente, dejando de evaluar el resto de la secuencia
 hayColisionConAlguna :: (Ord a, Num a) => Caja a -> [Caja a] -> Bool
 hayColisionConAlguna y = foldr (\x ac -> solapan x y || ac) False
 
