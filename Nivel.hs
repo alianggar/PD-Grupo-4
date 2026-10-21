@@ -306,7 +306,21 @@ simularCaidaLibre n a estado = estado : simularCaidaLibre (n - 1) a (paso a esta
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- EJERCICIO 4: Recursión sobre dos listas a la vez
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+{-
+Función: zipPropio
+Empareja los elementos de dos listas, uno a uno, deteniéndose en cuanto una de las dos se
+acaba.
+> zipPropio [1,2,3] "abc"
+[(1,'a'),(2,'b'),(3,'c')]
+> zipPropio [1,2,3,4,5] [10,20]
+[(1,10),(2,20)]
+-}
 
+
+zipPropio :: [a] -> [b] -> [(a,b)]
+zipPropio [] _ = []
+zipPropio _ [] = []
+zipPropio (x:xs) (y:ys) = (x,y) : zipPropio xs ys
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- EJERCICIO 5: Recursión con descarte condicional: preparación de líneas
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -394,3 +408,71 @@ cuentaCeldasQueCumplenAux p = foldl (\ys x -> if p x then ys + 1 else ys) 0
 -- BONUS: PROPEIDADES QUICKCHECK
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+prop_mapPropio_equivale_map :: Fun Int Int -> [Int] -> Bool
+prop_mapPropio_equivale_map fFun xs = mapPropio f xs == map f xs
+  where 
+    f = applyFun fFun
+
+-- ghci> quickCheck prop_mapPropio_equivale_map
+-- +++ OK, passed 100 tests.
+
+prop_filterPropio_equivale_filter :: Fun Int Bool -> [Int] -> Bool
+prop_filterPropio_equivale_filter fFun xs = filterPropio f xs == filter f xs
+  where 
+    f = applyFun fFun
+
+-- ghci> quickCheck prop_filterPropio_equivale_filter
+-- +++ OK, passed 100 tests.
+
+{-
+Inicialmente saltaba este error: ghci> quickCheck prop_mapPropio_equivale_map
+<interactive>:12:1: error: [GHC-39999]
+    * No instance for `Show (() -> ())'
+        arising from a use of `quickCheck'
+        (maybe you haven't applied a function to enough arguments?)
+    * In the expression: quickCheck prop_mapPropio_equivale_map
+      In an equation for `it':
+          it = quickCheck prop_mapPropio_equivale_map
+Tanto en la propiedad de map como en la de filter, ya que Haskell no sabe como hacer las funciones (a->b) prop_mapPropio_equivale_map
+porque son genericas. Por lo tanto, después de investigar, he llegado a la solución utilizando el tipo Fun 
+del módulo Test.QuickCheck.Function. Este tipo envuelve a las funciones para que QuickCheck sí pueda
+trabajar con ellas, generarlas aleatoriamente y mostrarlas si el test falla. 
+Para usarlas dentro del código, he aplicado el operador applyFun.
+-}
+
+prop_foldrPropio_equivale_foldr :: (Eq a, Show a) => a -> [a] -> Bool
+prop_foldrPropio_equivale_foldr inicial xs = 
+    foldrPropio f inicial xs == foldr f inicial xs
+  where 
+    f elemento ac = elemento  -- Función genérica válida para cualquier tipo
+
+-- ghci> quickCheck prop_foldrPropio_equivale_foldr
+-- +++ OK, passed 100 tests.
+
+prop_foldlPropio_equivale_foldl :: (Eq a, Show a) => a -> [a] -> Bool
+prop_foldlPropio_equivale_foldl acumulador xs = 
+    foldlPropio f acumulador xs == foldl f acumulador xs
+  where 
+    f ac elemento = ac        -- Función genérica válida para cualquier tipo
+
+-- ghci> quickCheck prop_foldlPropio_equivale_foldl
+-- +++ OK, passed 100 tests.
+
+prop_zipPropio_equivale_zip :: (Eq a, Eq b) => [a] -> [b] -> Bool
+prop_zipPropio_equivale_zip xs ys = zipPropio xs ys == zip xs ys
+
+-- ghci> prop_zipPropio_equivale_zip
+-- +++ OK, passed 100 tests.
+
+prop_simularCaidaLibre_longitud :: Int -> Double -> Vector2D -> Property
+prop_simularCaidaLibre_longitud n a estado = 
+    n >= 0 ==> length (simularCaidaLibre n a estado) == n + 1
+
+-- ghci> quickCheck prop_simularCaidaLibre_longitud
+-- +++ OK, passed 100 tests; 102 discarded.
+
+prop_hayColisionConAlguna_lista_vacia :: (Ord a, Num a) => Caja a -> Bool
+prop_hayColisionConAlguna_lista_vacia y = not (hayColisionConAlguna y [])
+
+-- ghci> quickCheck prop_hayColisionConAlguna_lista_vacia
+-- +++ OK, passed 100 tests.
