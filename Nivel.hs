@@ -249,7 +249,7 @@ Usamos Fun de QuickCheck, que genera funciones mostrables, y fijamos el tipo
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- BLOQUE 1: REECURSIÓN
+-- BLOQUE 1: RECURSIÓN
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -258,7 +258,39 @@ Usamos Fun de QuickCheck, que genera funciones mostrables, y fijamos el tipo
 -- EJERCICIO 1: Reimplementación recursiva de las consultas del nivel
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+{- Funcion posicionesMetaRec: Dado el nivel completo, devuelve la lista de posiciones (fila, columna) 
+en las que aparece la meta. Mismo resultado que posicionesMeta de la Tarea 1, pero implementado con recursion
+explcita en vez de comprension.-}
 
+posicionesMetaRec :: Grid -> [(Int, Int)]
+posicionesMetaRec xs = recorreFilaMeta 0 xs
+
+recorreFilaMeta :: Int -> Grid -> [(Int, Int)]
+recorreFilaMeta _ [] = []
+recorreFilaMeta f (x:xs) = recorreColMeta f 0 x  ++ recorreFilaMeta (f+1) xs
+
+recorreColMeta :: Int->Int->Fila->[(Int, Int)]
+recorreColMeta _ _ [] = []
+recorreColMeta f c (x:xs) 
+    |esMeta x = (f,c) : recorreColMeta f (c+1) xs
+    |otherwise = recorreColMeta f (c+1) xs
+
+
+{-Funcion posicionesEnemigosRec: Analoga a posicionesMetaRec, 
+para las posiciones e identificadores de los enemigos -}
+
+posicionesEnemigosRec :: Grid -> [(Int, Int, Celda)]
+posicionesEnemigosRec xs = recorreFilaEnemigos 0 xs
+
+recorreFilaEnemigos :: Int -> Grid -> [(Int, Int, Celda)]
+recorreFilaEnemigos _ [] = []
+recorreFilaEnemigos f (x:xs) = recorreColEnemigos f 0 x  ++ recorreFilaEnemigos (f+1) xs
+
+recorreColEnemigos :: Int->Int->Fila->[(Int, Int, Celda)]
+recorreColEnemigos _ _ [] = []
+recorreColEnemigos f c (x:xs) 
+    |esEnemigo x = (f,c,x) : recorreColEnemigos f (c+1) xs
+    |otherwise = recorreColEnemigos f (c+1) xs
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -325,6 +357,21 @@ zipPropio (x:xs) (y:ys) = (x,y) : zipPropio xs ys
 -- EJERCICIO 5: Recursión con descarte condicional: preparación de líneas
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+{-Funcion prepararLineas: Limpia una lista de lineas leidas de un fichero de nivel: recorta espacios en cada linea (con
+esComentarioOVacia para detectar comentarios, que empiezan por ’;’) y descarta las que queden vacias o sean comentarios.-}
+
+esComentarioOVacia :: String -> Bool
+esComentarioOVacia "" = True
+esComentarioOVacia (x:_) = x == ';'
+
+prepararLineas :: [String]->[String]
+prepararLineas [] = []
+prepararLineas (x:xs) 
+    | esComentarioOVacia noEspacios = prepararLineas xs
+    | otherwise = noEspacios : prepararLineas xs
+    where
+        noEspacios = trim x
+
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- BLOQUE 2: FUNCIONES DE ORDEN SUPERIOR
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -332,6 +379,18 @@ zipPropio (x:xs) (y:ys) = (x,y) : zipPropio xs ys
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- SUBTAREA 5: mapPropio y filterPropio
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+{-Funcion mapPropio: Aplica una funcion a cada elemento de una lista, devolviendo la lista de resultados en el
+mismo orden, hecha mediante recursion-}
+
+mapPropio :: (a -> b) -> [a] -> [b]
+mapPropio _ [] = []
+mapPropio f (x:xs) = f x : mapPropio f xs
+
+{-Funcion filterPropio: Se queda con los elementos de una lista que cumplen una condicion dada, hecha mediante recursion.-}
+
+filterPropio :: (a -> Bool) -> [a] -> [a]
+filterPropio _ [] = []
+filterPropio f (x:xs) = if f x then x : filterPropio f xs else filterPropio f xs
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
