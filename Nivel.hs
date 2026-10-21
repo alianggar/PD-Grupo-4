@@ -303,10 +303,6 @@ simularCaidaLibre 0 _ estado = [estado]
 simularCaidaLibre n a estado = estado : simularCaidaLibre (n - 1) a (paso a estado)
 
 
-simularCaidaLibre' :: Int -> Double -> Vector2D -> [Vector2D]
-simularCaidaLibre' 0 _ e = [e]
-simularCaidaLibre' n a e@(p,v) = e : simularCaidaLibre (n-1) a (p+v,v+a)
-
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- EJERCICIO 4: Recursión sobre dos listas a la vez
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -350,23 +346,13 @@ Debe implementarse con foldr.
 
 --type Caja a = (a, a, a, a) x, y, ancho, largo
 
--- Funcion auxiliar: comprueba si hay colisión entre 2 cajas
-colisionan :: (Ord a, Num a) => Caja a -> Caja a -> Bool
-colisionan (x1,y1,w1,h1) (x2,y2,w2,h2) =
-    x1 < x2 + w2 &&
-    x1 + w1 > x2 && 
-    y1 < y2 + h2 &&
-    y1 + h1 > h2
-
 -- Elegimos foldr porque permite que el cortocircuito con el operador
 -- || por la propia evaluacion perezosa de Haskell. Cuando se cumpla devuelve
 -- True inmediatamente, dejando de evalaur el resto de la secuencia
 hayColisionConAlguna :: (Ord a, Num a) => Caja a -> [Caja a] -> Bool
-hayColisionConAlguna y = foldr (\x ac -> colisionan x y || ac) False
+hayColisionConAlguna y = foldr (\x ac -> solapan x y || ac) False
 
--- Es lo mismo porque Haskell es perezoso
---hayColisionConAlguna :: (Ord a, Num a) => Caja a -> [Caja a] -> Bool
---hayColisionConAlguna y = foldr (\x ac -> if colisionan x y then True else ac) False 
+-- Usamos la funcion solapan de la tare 1 que comprueba si hay colisión entre 2 cajas
 
 {-
 Función: contarCeldasQueCumplen
@@ -380,8 +366,6 @@ pliegues).
 Debe implementarse con foldl (una función auxiliar para contar dentro de cada la, combinada
 con otra que suma los resultados de todas las las).
 -}
-
--- NOS PIDEN CON FOLDL, NO CON FOLDR
 
 -- Elegimos foldl, pues debemos acumular un resultado numérico de todas las filas del grid
 -- sin necesidad de cortociruito, combinando la suma de las celdas en cada fila mediante
