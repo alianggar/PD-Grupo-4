@@ -248,13 +248,17 @@ hayColisionConAlguna y = foldr (\x ac -> colisionan x y || ac) False
 -- BONUS PROPIEDADS QUICKCHECK
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-prop_mapPropio_equivale_map :: (Eq b, Show b) => (a -> b) -> [a] -> Bool
-prop_mapPropio_equivale_map f xs = mapPropio f xs == map f xs
+prop_mapPropio_equivale_map :: Fun Int Int -> [Int] -> Bool
+prop_mapPropio_equivale_map fFun xs = mapPropio f xs == map f xs
+  where 
+    f = applyFun fFun
 
 -- +++ OK, passed 100 tests.
 
-prop_filterPropio_equivale_filter :: (Eq a, Show a) => (a -> Bool) -> [a] -> Bool
-prop_filterPropio_equivale_filter f xs = filterPropio f xs == filter f xs
+prop_filterPropio_equivale_filter :: Fun Int Bool -> [Int] -> Bool
+prop_filterPropio_equivale_filter fFun xs = filterPropio f xs == filter f xs
+  where 
+    f = applyFun fFun
 
 -- +++ OK, passed 100 tests.
 
@@ -283,7 +287,7 @@ prop_simularCaidaLibre_longitud :: Int -> Double -> Vector2D -> Property
 prop_simularCaidaLibre_longitud n a estado = 
     n >= 0 ==> length (simularCaidaLibre n a estado) == n + 1
 
--- +++ OK, passed 100 tests.
+-- +++ OK, passed 100 tests; 102 discarded.
 
 prop_hayColisionConAlguna_lista_vacia :: (Ord a, Num a) => Caja a -> Bool
 prop_hayColisionConAlguna_lista_vacia y = not (hayColisionConAlguna y [])
