@@ -68,7 +68,7 @@ GameOver
 ```
 -}
 
-type Vector2D = (Double, Double)
+type Vector2D = (Float, Float)
 
 sumaVectores :: Vector2D -> Vector2D -> Vector2D
 sumaVectores (x1,y1) (x2,y2) = (x1+x2,y1+y2) 
@@ -126,7 +126,7 @@ conVelocidad nuevaVelocidad j =
   j { velJugador = nuevaVelocidad }
 
 -- Calcula la nueva posición según el tiempo y la velocidad.
-moverJugador :: Double -> Jugador -> Jugador
+moverJugador :: Float -> Jugador -> Jugador
 moverJugador dt j =
   j { posJugador =
         sumaVectores (posJugador j)
