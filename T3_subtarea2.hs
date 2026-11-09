@@ -73,7 +73,7 @@ type Vector2D = (Float, Float)
 sumaVectores :: Vector2D -> Vector2D -> Vector2D
 sumaVectores (x1,y1) (x2,y2) = (x1+x2,y1+y2) 
 
-escalarVector :: Double -> Vector2D -> Vector2D
+escalarVector :: Float -> Vector2D -> Vector2D
 escalarVector z (x1,y1) = (x1*z,y1*z)
 
 
