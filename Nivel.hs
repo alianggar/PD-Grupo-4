@@ -257,8 +257,10 @@ Usamos Fun de QuickCheck, que genera funciones mostrables, y fijamos el tipo
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- EJERCICIO 1: Reimplementación recursiva de las consultas del nivel
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Funcion posicionesMetaRec que hace lo mismo que posicionesMeta de la tarea 1 
--- usando recursion y funciones auxiliares.
+
+{- Funcion posicionesMetaRec: Dado el nivel completo, devuelve la lista de posiciones (fila, columna) 
+en las que aparece la meta. Mismo resultado que posicionesMeta de la Tarea 1, pero implementado con recursion
+explcita en vez de comprension.-}
 
 posicionesMetaRec :: Grid -> [(Int, Int)]
 posicionesMetaRec xs = recorreFilaMeta 0 xs
@@ -273,8 +275,9 @@ recorreColMeta f c (x:xs)
     |esMeta x = (f,c) : recorreColMeta f (c+1) xs
     |otherwise = recorreColMeta f (c+1) xs
 
--- Funcion posicionesEnemigosRec que hace lo mismo que posicionesEnemigos de la tarea 1 
--- usando recursion y funciones auxiliares.
+
+{-Funcion posicionesEnemigosRec: Analoga a posicionesMetaRec, 
+para las posiciones e identificadores de los enemigos -}
 
 posicionesEnemigosRec :: Grid -> [(Int, Int, Celda)]
 posicionesEnemigosRec xs = recorreFilaEnemigos 0 xs
@@ -290,12 +293,30 @@ recorreColEnemigos f c (x:xs)
     |otherwise = recorreColEnemigos f (c+1) xs
 
 
-
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- EJERCICIO 2: Generalización por recursión de agruparRachas
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+{-
+Función: agruparPorCaracter
+Recorre una fila y agrupa en tríos (columna de inicio, longitud, carácter) 
+las rachas de caracteres consecutivos iguales. 
+-}
 
+agruparPorCaracter :: Fila -> [(Int, Int, Char)]
+agruparPorCaracter cadena = agruparAux cadena 0
+
+agruparAux :: Fila -> Int -> [(Int, Int, Char)]
+agruparAux [] _ = []
+agruparAux (x:xs) indiceActual =
+    let (longitud, resto) = contarRacha x xs 1
+    in (indiceActual, longitud, x) : agruparAux resto (indiceActual + longitud)
+
+contarRacha :: Char -> Fila -> Int -> (Int, Fila)
+contarRacha _ [] contador = (contador, [])
+contarRacha c (x:xs) contador
+    | c == x    = contarRacha c xs (contador + 1)
+    | otherwise = (contador, (x:xs))
 
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -336,18 +357,31 @@ simularCaidaLibre n a estado = estado : simularCaidaLibre (n - 1) a (paso a esta
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- EJERCICIO 4: Recursión sobre dos listas a la vez
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+{-
+Función: zipPropio
+Empareja los elementos de dos listas, uno a uno, deteniéndose en cuanto una de las dos se
+acaba.
+> zipPropio [1,2,3] "abc"
+[(1,'a'),(2,'b'),(3,'c')]
+> zipPropio [1,2,3,4,5] [10,20]
+[(1,10),(2,20)]
+-}
 
+
+zipPropio :: [a] -> [b] -> [(a,b)]
+zipPropio [] _ = []
+zipPropio _ [] = []
+zipPropio (x:xs) (y:ys) = (x,y) : zipPropio xs ys
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- EJERCICIO 5: Recursión con descarte condicional: preparación de líneas
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+{-Funcion prepararLineas: Limpia una lista de lineas leidas de un fichero de nivel: recorta espacios en cada linea (con
+esComentarioOVacia para detectar comentarios, que empiezan por ’;’) y descarta las que queden vacias o sean comentarios.-}
+
 esComentarioOVacia :: String -> Bool
 esComentarioOVacia "" = True
 esComentarioOVacia (x:_) = x == ';'
-
--- Limpia una lista de lneas ledas de un chero de nivel: recorta espacios en cada lnea (con
--- esComentarioOVacia para detectar comentarios, que empiezan por ’;’) y descarta las que que
--- den vacas o sean comentarios.
 
 prepararLineas :: [String]->[String]
 prepararLineas [] = []
@@ -357,8 +391,6 @@ prepararLineas (x:xs)
     where
         noEspacios = trim x
 
-
-
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- BLOQUE 2: FUNCIONES DE ORDEN SUPERIOR
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -366,21 +398,39 @@ prepararLineas (x:xs)
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- SUBTAREA 5: mapPropio y filterPropio
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
--- Funciones mapPropio y filterPropio usando recursion
+{-Funcion mapPropio: Aplica una funcion a cada elemento de una lista, devolviendo la lista de resultados en el
+mismo orden, hecha mediante recursion-}
 
 mapPropio :: (a -> b) -> [a] -> [b]
 mapPropio _ [] = []
 mapPropio f (x:xs) = f x : mapPropio f xs
 
+{-Funcion filterPropio: Se queda con los elementos de una lista que cumplen una condicion dada, hecha mediante recursion.-}
+
 filterPropio :: (a -> Bool) -> [a] -> [a]
 filterPropio _ [] = []
 filterPropio f (x:xs) = if f x then x : filterPropio f xs else filterPropio f xs
+
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- SUBTAREA 6: foldrPropio y foldlPropio
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+{- Función: foldrPropio
+Combina los elementos de una lista de derecha a izquierda usando una función binaria y un
+valor inicial. No podéis usar foldr de la librería para definirla. -}
+
+foldrPropio :: (a -> b -> b) -> b -> [a] -> b
+foldrPropio _ inicial [] = inicial
+foldrPropio f inicial (x:xs) = f x (foldrPropio f inicial xs)
+
+{- Función: foldlPropio
+Combina los elementos de una lista de izquierda a derecha, arrastrando un acumulador que
+empieza en el valor inicial. No podéis usar foldl de la librería para definirla. -}
+
+foldlPropio :: (b -> a -> b) -> b -> [a] -> b
+foldlPropio _ acumulador [] = acumulador
+foldlPropio f acumulador (x:xs) = foldlPropio f (f acumulador x) xs
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- SUBTAREA 7: Aplicación justificada de foldr/foldl
@@ -405,7 +455,7 @@ Debe implementarse con foldr.
 
 -- Elegimos foldr porque permite que el cortocircuito con el operador
 -- || por la propia evaluacion perezosa de Haskell. Cuando se cumpla devuelve
--- True inmediatamente, dejando de evalaur el resto de la secuencia
+-- True inmediatamente, dejando de evaluar el resto de la secuencia
 hayColisionConAlguna :: (Ord a, Num a) => Caja a -> [Caja a] -> Bool
 hayColisionConAlguna y = foldr (\x ac -> solapan x y || ac) False
 
@@ -451,3 +501,71 @@ cuentaCeldasQueCumplenAux p = foldl (\ys x -> if p x then ys + 1 else ys) 0
 -- BONUS: PROPEIDADES QUICKCHECK
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+prop_mapPropio_equivale_map :: Fun Int Int -> [Int] -> Bool
+prop_mapPropio_equivale_map fFun xs = mapPropio f xs == map f xs
+  where 
+    f = applyFun fFun
+
+-- ghci> quickCheck prop_mapPropio_equivale_map
+-- +++ OK, passed 100 tests.
+
+prop_filterPropio_equivale_filter :: Fun Int Bool -> [Int] -> Bool
+prop_filterPropio_equivale_filter fFun xs = filterPropio f xs == filter f xs
+  where 
+    f = applyFun fFun
+
+-- ghci> quickCheck prop_filterPropio_equivale_filter
+-- +++ OK, passed 100 tests.
+
+{-
+Inicialmente saltaba este error: ghci> quickCheck prop_mapPropio_equivale_map
+<interactive>:12:1: error: [GHC-39999]
+    * No instance for `Show (() -> ())'
+        arising from a use of `quickCheck'
+        (maybe you haven't applied a function to enough arguments?)
+    * In the expression: quickCheck prop_mapPropio_equivale_map
+      In an equation for `it':
+          it = quickCheck prop_mapPropio_equivale_map
+Tanto en la propiedad de map como en la de filter, ya que Haskell no sabe como hacer las funciones (a->b) prop_mapPropio_equivale_map
+porque son genericas. Por lo tanto, después de investigar, he llegado a la solución utilizando el tipo Fun 
+del módulo Test.QuickCheck.Function. Este tipo envuelve a las funciones para que QuickCheck sí pueda
+trabajar con ellas, generarlas aleatoriamente y mostrarlas si el test falla. 
+Para usarlas dentro del código, he aplicado el operador applyFun.
+-}
+
+prop_foldrPropio_equivale_foldr :: (Eq a, Show a) => a -> [a] -> Bool
+prop_foldrPropio_equivale_foldr inicial xs = 
+    foldrPropio f inicial xs == foldr f inicial xs
+  where 
+    f elemento ac = elemento  -- Función genérica válida para cualquier tipo
+
+-- ghci> quickCheck prop_foldrPropio_equivale_foldr
+-- +++ OK, passed 100 tests.
+
+prop_foldlPropio_equivale_foldl :: (Eq a, Show a) => a -> [a] -> Bool
+prop_foldlPropio_equivale_foldl acumulador xs = 
+    foldlPropio f acumulador xs == foldl f acumulador xs
+  where 
+    f ac elemento = ac        -- Función genérica válida para cualquier tipo
+
+-- ghci> quickCheck prop_foldlPropio_equivale_foldl
+-- +++ OK, passed 100 tests.
+
+prop_zipPropio_equivale_zip :: (Eq a, Eq b) => [a] -> [b] -> Bool
+prop_zipPropio_equivale_zip xs ys = zipPropio xs ys == zip xs ys
+
+-- ghci> prop_zipPropio_equivale_zip
+-- +++ OK, passed 100 tests.
+
+prop_simularCaidaLibre_longitud :: Int -> Double -> Vector2D -> Property
+prop_simularCaidaLibre_longitud n a estado = 
+    n >= 0 ==> length (simularCaidaLibre n a estado) == n + 1
+
+-- ghci> quickCheck prop_simularCaidaLibre_longitud
+-- +++ OK, passed 100 tests; 102 discarded.
+
+prop_hayColisionConAlguna_lista_vacia :: (Ord a, Num a) => Caja a -> Bool
+prop_hayColisionConAlguna_lista_vacia y = not (hayColisionConAlguna y [])
+
+-- ghci> quickCheck prop_hayColisionConAlguna_lista_vacia
+-- +++ OK, passed 100 tests.
