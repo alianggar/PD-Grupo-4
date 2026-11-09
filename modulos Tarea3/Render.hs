@@ -9,6 +9,7 @@ import Jugador
 import Mundo
 import Graphics.Gloss
 
+-- Dibuja un rectángulo sólido de color col con el tamaño y la posición de la caja de colisión del objeto.
 dibujarObjeto :: Objeto a => Color -> a -> Picture
 dibujarObjeto col objeto =
   translate (x + ancho / 2) (y + alto / 2)
@@ -17,6 +18,7 @@ dibujarObjeto col objeto =
     (x, y, ancho, alto) = boundingBox objeto
 
 
+-- Dibuja el texto fijo con las vidas y los puntos del jugador.
 dibujarHUD :: Jugador -> Picture
 dibujarHUD j =
   translate (-380) 270
@@ -25,6 +27,7 @@ dibujarHUD j =
           ++ "   Puntos: " ++ show (puntuacion j))))
 
 
+-- Devuelve el mensaje a mostrar según el estado del juego, o Nothing si se está jugando.
 mensajeEstado :: EstadoJuego -> Maybe String
 mensajeEstado Jugando =
   Nothing
@@ -36,6 +39,7 @@ mensajeEstado NivelCompletado =
   Just "NIVEL COMPLETADO"
 
 
+-- Dibuja la escena con la cámara siguiendo al jugador, el HUD fijo y el mensaje de estado si lo hay.
 dibujarMundo :: Mundo -> Picture
 dibujarMundo m =
   Pictures
